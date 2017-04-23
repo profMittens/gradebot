@@ -33,6 +33,7 @@ def runTests(submissions, unitTests, config):
             submission.totalPoints = submission.totalPoints + r.points
 
         #save off the results to a file
+        config.max_points = submission.maxPoints
         outDir = config.dir_output+'/'+config.aid
         submission.save(outDir)
 
@@ -58,6 +59,10 @@ def d2lEp(config):
     d2ltools = d2lHelper(config)
     if not d2ltools.assignmentsExist():
         quit()
+    if config.noGrade:
+        d2ltools.generateFeedback()
+        d2ltools.generateGrades()
+        quit()
    
     logMsg(config,"Getting list of submissions")
     submissions = d2ltools.getSubmissions()
@@ -76,7 +81,9 @@ def d2lEp(config):
     logMsg(config,"Cleaning up working folder")
     shutil.rmtree(config.workingFolder)
 
-
+    d2ltools.generateFeedback()
+    d2ltools.generateGrades()
+    
 def configureLogging(config):
     logPath = config.dir_output+"/gradebot.log"
     logging.basicConfig(filename=logPath, level=logging.DEBUG, \
@@ -89,10 +96,14 @@ if __name__ == "__main__":
     parser.add_argument("-dp","--dataprovider", help="where your assignments are \
             comming from. Options are: d2l, bb, gh, gl")
     parser.add_argument("-a","--aid", help="id of the assignment to be graded")
-    parser.add_argument("-d","--debug", help="turn on debug prints")
+    parser.add_argument("-d","--debug", help="turn on debug prints", action='store_true')
     parser.add_argument("-c","--create", help="create a new assignment, this will create"\
             "all the folders in the right places")
     parser.add_argument('-r','--remove', help="removes assignment from gradebot")
+    parser.add_argument('-g','--generate', help="generate feedback and grade files", action='store_true')
+    parser.add_argument('-ng','--nograde', help="do not automatically grade assignments"\
+            "can be used with -g to generate grades and feedback after manually adjusting"\
+            "grades and feedback", action='store_true')
     args = parser.parse_args()
    
     # Save the assignment id that is to be graded
@@ -141,7 +152,10 @@ if __name__ == "__main__":
         print("Done")
         quit()
    
-
+    if args.generate:
+        config.generateFeedback = True
+    if args.nograde:
+        config.noGrade = True
 
     outDir = config.dir_output+'/'+config.aid
     logMsg(config, "Creating output foder at {0}".format(outDir))

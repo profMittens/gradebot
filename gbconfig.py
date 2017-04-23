@@ -36,6 +36,9 @@ class gbconfig:
         self.buildDir = self.cwd+'/'+config['default_settings']['build_dir']
         self.workingFolder = self.dir_assignments+'/tmp'
         self.debug = True
+        self.gradeFile = config['default_settings']['grade_file']
+        self.generateFeedback = False
+        self.noGrade = False
 
 if __name__ == "__main__":
     print("Running self test...")

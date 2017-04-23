@@ -2,6 +2,8 @@
 import os
 import logging
 import zipfile
+import json
+import csv
 from tools.log import logMsg
 from resources.student import studentHelper
 from resources.submission import submissionHelper
@@ -93,6 +95,69 @@ class d2lHelper:
             submissions[student.sid] = submission
 
         return submissions
+
+    def generateGrades(self):
+        # read the gradebook into memory
+        gradebook = []
+        with open(self.config.gradeFile) as csvfile:
+            reader = csv.reader(csvfile)
+            for l in reader:
+                gradebook.append(l)
+
+
+        # load all of the submissions so we can insert the new grade into teh book
+        gradesDir = self.config.dir_output + '/' + self.config.aid
+        for f in os.listdir(gradesDir):
+            if f[-4:] == "json":
+                path = gradesDir+'/'+f
+                with open(path) as jsonData:
+                    sub = json.load(jsonData)
+                
+                gradebookHdr = self.config.aid + ' Points Grade <Numeric MaxPoints:{0}>'\
+                    .format(sub['maxPoints'])
+                for l in gradebook: 
+                    if l[1] == sub['student']['lName'] and l[2] == sub['student']['fName']:
+                        l.append(sub['totalPoints'])
+                    break
+
+        gradebook[0].append(gradebookHdr)
+
+        writer = csv.writer(open(self.config.gradeFile, 'w'))
+        writer.writerows(gradebook)
+        print("Gradebook updated, upload to d2l to add new grades") 
+
+    def generateFeedback(self):
+        # make feedback folder
+        feedbackDir = self.config.dir_output + '/' + self.config.aid + '/feedback/'
+        if not os.path.isdir(feedbackDir):
+            os.makedirs(feedbackDir)
+        gradesDir = self.config.dir_output + '/' + self.config.aid
+
+        for f in os.listdir(gradesDir):
+            if f[-4:] == "json":
+                path = gradesDir+'/'+f
+                with open(path) as jsonData:
+                    sub = json.load(jsonData)
+               
+                feedbackFilePath = feedbackDir+f[:6]+'-'+f[6:12]+'.txt'
+                feedback = open(feedbackFilePath,'w')
+                feedback.write("Student: {0}".format(sub["student"]['fName']\
+                            +' '+sub["student"]['lName']+'\n\n'))
+                feedback.write("Overall Comments: {0}\n\n".format(sub["instructorComments"]))
+                feedback.write("Per test comments\n")
+                for r in sub["results"]:
+                    feedback.write("Test Name: {0}\nReceived Points: {1}\nComments: {2}\n"\
+                        .format(r["name"],r["points"],r["comments"]))
+                feedback.close()
+
+        # Zip up the feedback folder so we can submit it to d2l
+        zipFilePath = feedbackDir+'feedback.zip'
+        zipf = zipfile.ZipFile(zipFilePath, 'w', zipfile.ZIP_DEFLATED)
+        for f in os.listdir(feedbackDir):
+            if f[-3:] == 'txt':
+                zipf.write(feedbackDir+f,os.path.basename(feedbackDir+f))
+        zipf.close()
+        print("Feedback file located at {0} Grab it and upload it to d2l!".format(zipFilePath))
 
 if __name__ == "__main__":
     print("hello!")
