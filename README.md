@@ -55,4 +55,6 @@ classes
 * `-d`  | enalbe debug prints
 * `-c` <aid> | create entries for an assignment
 * `-r` <aid> | remove folders and contents for a specific assignment
-
+* `-g' | generate feedback files which can be uploaded to d2l
+* `-ng' | Do not auto grade files, can be used in conjunction with `-g` to generate
+grades and feedback after manual review
