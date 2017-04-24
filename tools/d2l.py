@@ -103,7 +103,8 @@ class d2lHelper:
             reader = csv.reader(csvfile)
             for l in reader:
                 gradebook.append(l)
-
+        eolHdr = "End-of-Line Indicator"
+        eol = "#"
 
         # load all of the submissions so we can insert the new grade into teh book
         gradesDir = self.config.dir_output + '/' + self.config.aid
@@ -117,10 +118,20 @@ class d2lHelper:
                     .format(sub['maxPoints'])
                 for l in gradebook: 
                     if l[1] == sub['student']['lName'] and l[2] == sub['student']['fName']:
-                        l.append(sub['totalPoints'])
-                    break
-
-        gradebook[0].append(gradebookHdr)
+                        l[len(l)-1] = sub['totalPoints']
+                        l.append(eol)
+                        break
+                    
+         
+        gradebook[0][len(gradebook[0])-1] = gradebookHdr
+        gradebook[0].append(eolHdr)
+       
+        # insert 0's for anyone that didn't submit
+        count = len(gradebook[0])
+        for l in gradebook:
+            if len(l) < count:
+                l[len(l)-1] = ''
+                l.append(eol)
 
         writer = csv.writer(open(self.config.gradeFile, 'w'))
         writer.writerows(gradebook)
