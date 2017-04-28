@@ -40,8 +40,17 @@ unit test as well as any auto generated comments you may have put in the tests.
 From this point you can go back and manually review any interesting tests and
 make modifications to grades and comments.
 
-5. TODO - Integrate https://github.com/Spirotot/gradingmagic to generate a d2l
-complient file for automatic grade recording.
+5. If run with the '''-g''' flag, entries will be added to a gradebook csv file
+that can be configured in the `config.ini` file. Currently this file follows
+the format that D2L accepts. If using D2L you should export your initial gradebook
+to a csv file and use that as your grade file. As assignments are graded this 
+file can then be reuploaded to D2L for automatic grade importing. Gradebot will
+need to be tweaked to work with other grading systems for automatic grading.
+
+6. When gradebot is run with `-g` it will also generate feedback text files which
+are found at `/output/<aid>/feedback`. This directory contains individual text 
+files as well as a zip file which can be imported into D2l for bulk uploading
+of feedback.
 
 ## Interesting file locations  
 * `resources/` - contains most of the object type definitions such as submission
@@ -55,6 +64,6 @@ classes
 * `-d`  | enalbe debug prints
 * `-c` <aid> | create entries for an assignment
 * `-r` <aid> | remove folders and contents for a specific assignment
-* `-g' | generate feedback files which can be uploaded to d2l
-* `-ng' | Do not auto grade files, can be used in conjunction with `-g` to generate
+* `-g` | generate feedback files which can be uploaded to d2l
+* `-ng` | Do not auto grade files, can be used in conjunction with `-g` to generate
 grades and feedback after manual review
