@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import json
 from resources.student import studentHelper
-from resources.testResult import ut_result
+from tests.unit_test import ut_result
 
 class submissionHelper:
     def __init__(self, student=studentHelper(), date="", path="", scomments="",\

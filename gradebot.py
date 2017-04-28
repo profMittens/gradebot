@@ -12,7 +12,7 @@ from gbconfig import dataProvider
 from gbconfig import gbconfig
 from resources.submission import submissionHelper
 from resources.student import studentHelper
-from resources.testResult import ut_result
+from tests.unit_test import ut_result
 
 def getUnitTests(config):
     __import__("tests."+config.aid,fromlist=['*'])    
@@ -75,8 +75,6 @@ def d2lEp(config):
 
     logMsg(config,"Preparing to run tests on submissions")
     runTests(submissions, unitTests, config)
-
-    printResults(submissions, config)
 
     logMsg(config,"Cleaning up working folder")
     shutil.rmtree(config.workingFolder)
